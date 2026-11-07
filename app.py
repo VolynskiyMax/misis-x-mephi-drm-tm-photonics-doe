@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import torch
 import gradio as gr
-from run import DOE_GeneratorNet, WinningFresnel, calc_metrics_and_loss, DEVICE, N, WAVELENGTH, PIXEL_SIZE, DISTANCES
+from run import DOE_GeneratorNet, WinningFresnel, calc_metrics_and_loss, ssim_torch, DEVICE, N, WAVELENGTH, PIXEL_SIZE, DISTANCES
 
 # Загрузка обученной нейросети и физического слоя
 MODEL_PATH = "mephi_doe_model.pth"
@@ -68,21 +68,32 @@ def process_images(img1, img2, img3, img4, steps, return_intensity):
         editable = torch.nn.Parameter(init_phase.clone())
         opt = torch.optim.Adam([editable], lr=0.08)
         sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=steps, eta_min=0.005)
-        
-        bg_mask = (target_imgs < 0.05).float()
-        fg_mask = (target_imgs >= 0.05).float()
+
+        fg = (target_imgs >= 0.05).float()
+        bg = (target_imgs < 0.05).float()
+        bg_frac = bg.mean().item()
+
+        w_bg = 2.0 + 8.0 * (bg_frac**3)
+        w_ssim = 1.5 + 2.5 * (bg_frac**3)
+        w_kk = 3.5
 
         for s in range(int(steps)):
             opt.zero_grad()
             rec = prop(editable, return_intensity=return_intensity)
-            loss_m, _, _ = calc_metrics_and_loss(rec, target_imgs)
-            fg_loss = (((rec - target_imgs) * fg_mask)**2).sum() / (fg_mask.sum() + 1e-8)
-            bg_loss = ((rec * bg_mask)**2).mean()
-            tot = loss_m + fg_loss * 2.5 + bg_loss * 8.0
+
+            Am = rec - rec.mean(dim=(-2, -1), keepdim=True)
+            Bm = target_imgs - target_imgs.mean(dim=(-2, -1), keepdim=True)
+            kk = ((Am * Bm).sum(dim=(-2, -1)) / (torch.sqrt((Am**2).sum(dim=(-2, -1)) * (Bm**2).sum(dim=(-2, -1))) + 1e-8)).mean()
+            iss = ssim_torch(rec, target_imgs)
+
+            fg_loss = (((rec - target_imgs) * fg)**2).mean()
+            bg_loss = ((rec * bg)**2).mean()
+
+            tot = w_kk * (1.0 - kk) + w_ssim * (1.0 - iss) + 2.0 * fg_loss + w_bg * bg_loss
             tot.backward()
             opt.step()
             sched.step()
-            
+
         final_phase = editable.detach()
     else:
         final_phase = init_phase.detach()
@@ -151,13 +162,33 @@ def process_images(img1, img2, img3, img4, steps, return_intensity):
     return doe_uint8, rec_imgs[0], rec_imgs[1], rec_imgs[2], rec_imgs[3], summary_card, layer_metrics_html
 
 
-def load_demo_examples():
-    """Загрузка тестовых картинок из проекта"""
+def load_geom_examples():
+    """Загрузка тестового геометрического бенчмарка (Звезда, Кольца, Атом, Q)"""
+    files = ["test_kit_geom/img_1_star.png", "test_kit_geom/img_2_rings.png", "test_kit_geom/img_3_atom.png", "test_kit_geom/img_4_q.png"]
+    found = []
+    for f in files:
+        if os.path.exists(f):
+            found.append(f)
+        elif os.path.exists(os.path.join("/Users/maksim/Desktop/hackathon_photonics", f)):
+            found.append(os.path.join("/Users/maksim/Desktop/hackathon_photonics", f))
+        elif os.path.exists(os.path.join("/Users/maksim/Downloads", f)):
+            found.append(os.path.join("/Users/maksim/Downloads", f))
+        else:
+            found.append(None)
+    return found[0], found[1], found[2], found[3]
+
+
+def load_digit_examples():
+    """Загрузка тестовых рукописных цифр (0, 5, 5, 7)"""
     demos = ["1.png", "2.png", "3.png", "4.png"]
     found = []
     for d in demos:
         if os.path.exists(d):
             found.append(d)
+        elif os.path.exists(os.path.join("/Users/maksim/Desktop/hackathon_photonics", d)):
+            found.append(os.path.join("/Users/maksim/Desktop/hackathon_photonics", d))
+        elif os.path.exists(os.path.join("/Users/maksim/Downloads", d)):
+            found.append(os.path.join("/Users/maksim/Downloads", d))
         else:
             found.append(None)
     return found[0], found[1], found[2], found[3]
@@ -224,15 +255,17 @@ with gr.Blocks(title="AI Фотоника | Синтез ДОЭ") as demo:
                 in_img3 = gr.Image(label="Слой 3 (z = 26.5 мм)", type="numpy", sources=["upload"])
                 in_img4 = gr.Image(label="Слой 4 (z = 27.7 мм)", type="numpy", sources=["upload"])
 
-            btn_demo = gr.Button("📂 Загрузить демонстрационные примеры", variant="secondary")
+            with gr.Row():
+                btn_demo_geom = gr.Button("🌟 Загрузить 3D-геометрию (Звезда, Кольца, Атом, Q)", variant="secondary")
+                btn_demo_digits = gr.Button("🔢 Загрузить рукописные цифры (MNIST)", variant="secondary")
 
             gr.Markdown("### ⚙️ 2. Параметры синтеза")
             slider_steps = gr.Slider(
                 minimum=0,
-                maximum=500,
-                value=150,
-                step=25,
-                label="Шаги оптимизации (0 = мгновенный вывод чистой нейросети ~5 мс, 150 = баланс, 400 = максимум качества)"
+                maximum=2000,
+                value=1200,
+                step=50,
+                label="Шаги оптимизации (0 = мгновенный вывод 5 мс, 1200 = максимальное качество за 2.2 с)"
             )
             chk_intensity = gr.Checkbox(label="Возвращать интенсивность (|K|²) вместо модуля (|K|)", value=False)
 
@@ -259,8 +292,14 @@ with gr.Blocks(title="AI Фотоника | Синтез ДОЭ") as demo:
                 out_rec4 = gr.Image(label="Восстановлен: z = 27.7 мм")
 
     # Логика кнопок
-    btn_demo.click(
-        fn=load_demo_examples,
+    btn_demo_geom.click(
+        fn=load_geom_examples,
+        inputs=[],
+        outputs=[in_img1, in_img2, in_img3, in_img4]
+    )
+
+    btn_demo_digits.click(
+        fn=load_digit_examples,
         inputs=[],
         outputs=[in_img1, in_img2, in_img3, in_img4]
     )

@@ -145,7 +145,7 @@ def calc_metrics_and_loss(reconstructed: torch.Tensor, target: torch.Tensor):
     kk = (num / den).mean()
 
     iss = ssim_torch(reconstructed, target)
-    loss = (1.0 - kk) + (1.0 - iss)
+    loss = 4.0 * (1.0 - kk) + 1.2 * (1.0 - iss)
     return loss, kk.item(), iss.item()
 
 
@@ -156,7 +156,7 @@ def run_pipeline(
     weights_path: str,
     four_image_paths: list,
     output_folder: str = "jury_result",
-    steps: int = 150,
+    steps: int = 1200,
     return_intensity: bool = False
 ):
     start_time = time.time()
@@ -201,21 +201,30 @@ def run_pipeline(
     if steps > 0:
         print(f"⏳ Дополнительная оптимизация фазы ({steps} шагов Adam)...")
         editable_phase = nn.Parameter(init_phase.clone())
-        optimizer = torch.optim.Adam([editable_phase], lr=0.08)
+        optimizer = torch.optim.Adam([editable_phase], lr=0.09)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=steps, eta_min=0.005)
 
-        bg_mask = (target_imgs < 0.05).float()
-        fg_mask = (target_imgs >= 0.05).float()
+        fg = (target_imgs >= 0.05).float()
+        bg = (target_imgs < 0.05).float()
+        bg_frac = bg.mean().item()
+
+        w_bg = 2.0 + 8.0 * (bg_frac**3)
+        w_ssim = 1.5 + 2.5 * (bg_frac**3)
+        w_kk = 3.5
 
         for step in range(steps):
             optimizer.zero_grad()
             rec = prop(editable_phase, return_intensity=return_intensity)
-            loss_metrics, kk, iss = calc_metrics_and_loss(rec, target_imgs)
 
-            fg_loss = (((rec - target_imgs) * fg_mask)**2).sum() / (fg_mask.sum() + 1e-8)
-            bg_loss = ((rec * bg_mask)**2).mean()
+            Am = rec - rec.mean(dim=(-2, -1), keepdim=True)
+            Bm = target_imgs - target_imgs.mean(dim=(-2, -1), keepdim=True)
+            kk = ((Am * Bm).sum(dim=(-2, -1)) / (torch.sqrt((Am**2).sum(dim=(-2, -1)) * (Bm**2).sum(dim=(-2, -1))) + 1e-8)).mean()
+            iss = ssim_torch(rec, target_imgs)
 
-            total_loss = loss_metrics + fg_loss * 2.5 + bg_loss * 8.0
+            fg_loss = (((rec - target_imgs) * fg)**2).mean()
+            bg_loss = ((rec * bg)**2).mean()
+
+            total_loss = w_kk * (1.0 - kk) + w_ssim * (1.0 - iss) + 2.0 * fg_loss + w_bg * bg_loss
             total_loss.backward()
             optimizer.step()
             scheduler.step()
@@ -282,7 +291,7 @@ if __name__ == "__main__":
     parser.add_argument("--img2", type=str, default=None, help="Изображение 2 (z = 25.3 мм)")
     parser.add_argument("--img3", type=str, default=None, help="Изображение 3 (z = 26.5 мм)")
     parser.add_argument("--img4", type=str, default=None, help="Изображение 4 (z = 27.7 мм)")
-    parser.add_argument("--steps", type=int, default=100, help="Количество шагов оптимизации (0 = мгновенный вывод 5 мс, 100 = оптимум)")
+    parser.add_argument("--steps", type=int, default=1200, help="Количество шагов оптимизации (0 = мгновенный вывод 5 мс, 1200 = максимальное качество за 3-4 сек)")
     parser.add_argument("--out", type=str, default="output", help="Папка для сохранения выходных файлов (doe.png и rec_*.png)")
     parser.add_argument("--intensity", action="store_true", help="Возвращать интенсивность (|K|²) вместо модуля")
     args = parser.parse_args()
