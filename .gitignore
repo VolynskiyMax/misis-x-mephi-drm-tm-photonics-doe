@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.gradio/
+.DS_Store
+output/
+test_eval/
+jury_result/
+jury_result_400/
+jury_result_fast/
+hf_space/
