@@ -218,11 +218,11 @@ with gr.Blocks(title="AI Фотоника | Синтез ДОЭ") as demo:
         with gr.Column(scale=4):
             gr.Markdown("### 📥 1. Входные срезы 3D-сцены (4 изображения 128×128)")
             with gr.Row():
-                in_img1 = gr.Image(label="Слой 1 (z = 24.1 мм)", type="numpy")
-                in_img2 = gr.Image(label="Слой 2 (z = 25.3 мм)", type="numpy")
+                in_img1 = gr.Image(label="Слой 1 (z = 24.1 мм)", type="numpy", sources=["upload"])
+                in_img2 = gr.Image(label="Слой 2 (z = 25.3 мм)", type="numpy", sources=["upload"])
             with gr.Row():
-                in_img3 = gr.Image(label="Слой 3 (z = 26.5 мм)", type="numpy")
-                in_img4 = gr.Image(label="Слой 4 (z = 27.7 мм)", type="numpy")
+                in_img3 = gr.Image(label="Слой 3 (z = 26.5 мм)", type="numpy", sources=["upload"])
+                in_img4 = gr.Image(label="Слой 4 (z = 27.7 мм)", type="numpy", sources=["upload"])
 
             btn_demo = gr.Button("📂 Загрузить демонстрационные примеры", variant="secondary")
 
