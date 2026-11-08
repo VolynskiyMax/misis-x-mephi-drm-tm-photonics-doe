@@ -286,6 +286,84 @@
             border: 1px solid rgba(245, 158, 11, 0.25);
         }
 
+        /* Команда проекта (Слайд 2) */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 15px;
+        }
+
+        .team-card {
+            background: rgba(24, 24, 27, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .team-card.captain {
+            border-color: rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+        }
+
+        .team-card:hover {
+            transform: translateY(-4px);
+            border-color: #f59e0b;
+        }
+
+        .photo-placeholder {
+            width: 140px;
+            height: 140px;
+            border-radius: 10px;
+            background: #18181b;
+            border: 2px dashed rgba(245, 158, 11, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            color: #94a3b8;
+            font-size: 11px;
+            gap: 6px;
+        }
+
+        .photo-placeholder svg {
+            width: 32px;
+            height: 32px;
+            stroke: #f59e0b;
+        }
+
+        .member-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .member-role {
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+
+        .member-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.45;
+            text-align: left;
+            width: 100%;
+        }
+
         /* Схема пайплайна (Слайд 3) */
         .pipeline-bar {
             display: flex;
@@ -497,19 +575,104 @@
                 </div>
                 <div>
                     <div style="font-size: 11.5px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Скорость синтеза</div>
-                    <div style="font-size: 18px; font-weight: 800; color: #fff;">~1.01 сек на CPU/MPS</div>
+                    <div style="font-size: 18px; font-weight: 800; color: #fff;">~1.3 сек на CPU/MPS</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- СЛАЙД 2: ПРОБЛЕМА -->
+    <!-- СЛАЙД 2: КОМАНДА ПРОЕКТА -->
+    <div class="slide" id="slide-team">
+        <div class="glow-laser"></div>
+        <div class="grid-line-h"></div>
+        <div class="grid-line-v"></div>
+        <div class="slide-content">
+            <div class="top-tag">01 / КОМАНДА ПРОЕКТА</div>
+            <h2 class="slide-title">СОСТАВ КОМАНДЫ <span>MISIS X MEPHI</span></h2>
+
+            <div class="team-grid">
+                <!-- Участник 1: Симакова Анастасия -->
+                <div class="team-card captain">
+                    <div class="photo-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>[Место для фото]</span>
+                    </div>
+                    <div class="member-name">Симакова Анастасия</div>
+                    <div class="member-role">Капитан команды</div>
+                    <div class="member-desc">
+                        • Распределение задач<br>
+                        • Создание презентации<br>
+                        • Координация проекта
+                    </div>
+                </div>
+
+                <!-- Участник 2: Волынский Максим -->
+                <div class="team-card">
+                    <div class="photo-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>[Место для фото]</span>
+                    </div>
+                    <div class="member-name">Волынский Максим</div>
+                    <div class="member-role">ML & Алгоритмы</div>
+                    <div class="member-desc">
+                        • Создание основной логики<br>
+                        • Физический пайплайн Френеля<br>
+                        • Оптимизация фазы ДОЭ
+                    </div>
+                </div>
+
+                <!-- Участник 3: Ельский Арсений -->
+                <div class="team-card">
+                    <div class="photo-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>[Место для фото]</span>
+                    </div>
+                    <div class="member-name">Ельский Арсений</div>
+                    <div class="member-role">Web & Деплой</div>
+                    <div class="member-desc">
+                        • Разработка веб-интерфейса<br>
+                        • Интерактивное Gradio-демо<br>
+                        • Пользовательский сценарий
+                    </div>
+                </div>
+
+                <!-- Участник 4: Черниченко Виталий -->
+                <div class="team-card">
+                    <div class="photo-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>[Место для фото]</span>
+                    </div>
+                    <div class="member-name">Черниченко Виталий</div>
+                    <div class="member-role">ML Research</div>
+                    <div class="member-desc">
+                        • Обучение нейросетевой модели<br>
+                        • Архитектура U-Net<br>
+                        • Валидация метрик
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 3: ПРОБЛЕМА -->
     <div class="slide" id="slide-2">
         <div class="glow-laser"></div>
         <div class="grid-line-h"></div>
         <div class="grid-line-v"></div>
         <div class="slide-content">
-            <div class="top-tag">01 / АКТУАЛЬНОСТЬ И ПРОБЛЕМА</div>
+            <div class="top-tag">02 / АКТУАЛЬНОСТЬ И ПРОБЛЕМА</div>
             <h2 class="slide-title">ПОЧЕМУ КЛАССИКА <span>СЛИШКОМ МЕДЛЕННА?</span></h2>
             
             <div class="problem-list">
@@ -551,7 +714,7 @@
         <div class="grid-line-h"></div>
         <div class="grid-line-v"></div>
         <div class="slide-content">
-            <div class="top-tag">02 / РЕШЕНИЕ: PHYSICS-INFORMED AI</div>
+            <div class="top-tag">03 / РЕШЕНИЕ: PHYSICS-INFORMED AI</div>
             <h2 class="slide-title">ИНТЕГРАЦИЯ <span>U-NET И ВОЛНОВОЙ ОПТИКИ</span></h2>
 
             <!-- Интерактивная схема потока вычислений -->
@@ -622,7 +785,7 @@
         <div class="grid-line-h"></div>
         <div class="grid-line-v"></div>
         <div class="slide-content">
-            <div class="top-tag">03 / ЧИСЛЕННЫЕ РЕЗУЛЬТАТЫ</div>
+            <div class="top-tag">04 / ЧИСЛЕННЫЕ РЕЗУЛЬТАТЫ</div>
             <h2 class="slide-title">ВЫСОКОЕ КАЧЕСТВО И <span>РЕКОРДНАЯ СКОРОСТЬ</span></h2>
 
             <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 22px;">
@@ -650,13 +813,13 @@
         </div>
     </div>
 
-    <!-- СЛАЙД 5: ПРИМЕНЕНИЕ И ПРОДУКТОВЫЙ ПОТЕНЦИАЛ -->
+    <!-- СЛАЙД 6: ПРИМЕНЕНИЕ И ПРОДУКТОВЫЙ ПОТЕНЦИАЛ -->
     <div class="slide" id="slide-5">
         <div class="glow-laser"></div>
         <div class="grid-line-h"></div>
         <div class="grid-line-v"></div>
         <div class="slide-content">
-            <div class="top-tag">04 / ПРИМЕНЕНИЕ И РЫНОЧНЫЙ ПОТЕНЦИАЛ</div>
+            <div class="top-tag">05 / ПРИМЕНЕНИЕ И РЫНОЧНЫЙ ПОТЕНЦИАЛ</div>
             <h2 class="slide-title">ОТ НАУЧНОГО МЕТОДА — <span>К РЕАЛЬНОМУ ПРОДУКТУ</span></h2>
 
             <div class="problem-list" style="gap: 14px; margin-top: 6px;">
@@ -699,13 +862,13 @@
         </div>
     </div>
 
-    <!-- СЛАЙД 6: ЗАКЛЮЧЕНИЕ И QR-КОД -->
+    <!-- СЛАЙД 7: ЗАКЛЮЧЕНИЕ И QR-КОД -->
     <div class="slide" id="slide-6">
         <div class="glow-laser"></div>
         <div class="grid-line-h"></div>
         <div class="grid-line-v"></div>
         <div class="slide-content">
-            <div class="top-tag">05 / КОМАНДА И ИНТЕРАКТИВНОЕ DEMO</div>
+            <div class="top-tag">06 / РЕПОЗИТОРИЙ И ЖИВОЕ DEMO</div>
             <h2 class="slide-title">ГОТОВЫ К ВНЕДРЕНИЮ <span>В РЕАЛЬНУЮ ОПТИКУ</span></h2>
 
             <div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; margin-top: 10px; flex-grow: 1;">
@@ -713,13 +876,13 @@
                 <!-- Левая карточка: Команда и Ссылки -->
                 <div class="card" style="justify-content: space-between; padding: 26px;">
                     <div>
-                        <div class="card-number">КОМАНДА MISIS X MEPHI</div>
-                        <div class="card-title">Распределение ролей в проекте:</div>
+                        <div class="card-number">ИТОГИ И РЕПОЗИТОРИЙ</div>
+                        <div class="card-title">Готовность решения к защите:</div>
                         <div class="card-body" style="font-size: 14px; line-height: 1.8;">
-                            • <b>Физика & Оптика:</b> 1-FFT Френель, волновые фазовые ядра<br>
-                            • <b>ML-архитектура:</b> U-Net, Physics-Informed дифференцируемый лосс<br>
-                            • <b>Дата-пайплайн:</b> генерация данных, стресс-тесты, валидация<br>
-                            • <b>Продукт & Деплой:</b> Docker-контейнер, CLI, Gradio Web UI
+                            • <b>Стандарты ТЗ:</b> полное соответствие всем критериям МИФИ<br>
+                            • <b>Обученная модель:</b> mephi_doe_model.pth (13 МБ в репозитории)<br>
+                            • <b>Автономность:</b> Docker-контейнер и консольный скрипт run.py<br>
+                            • <b>Интерактив:</b> веб-приложение на Gradio с поддержкой любых сцен
                         </div>
                     </div>
 
@@ -772,7 +935,7 @@
 <!-- Навигация -->
 <div class="controls">
     <button class="btn-nav" onclick="prevSlide()">← Назад</button>
-    <div class="slide-counter" id="counter">1 / 6</div>
+    <div class="slide-counter" id="counter">1 / 7</div>
     <button class="btn-nav" onclick="nextSlide()">Вперёд →</button>
     <button class="btn-fs" onclick="toggleFullScreen()" title="Полноэкранный режим (F)">⛶</button>
 </div>
